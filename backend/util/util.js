@@ -1,7 +1,7 @@
   /*************************/
  /* Request data handling */
 /*************************/
-exports.handleRequestData = function(req, res) {
+exports.handleRequestData = function(req) {
     let requestData;
 
     if (req.body.data) {
@@ -9,15 +9,13 @@ exports.handleRequestData = function(req, res) {
             try {
                 requestData = JSON.parse(req.body.data);
             } catch (error) {
-                res.status(400).json({message: "data format is incorrect, must be in stringified JSON !"});
-                return;
+                return false;
             }
         } else {
             requestData = {};
         }
     } else {
         if (Object.keys(req.body).length === 0) {
-            res.status(400).json({message: "data is missing !"});
             return;
         } else {
             requestData = req.body;

@@ -49,7 +49,7 @@ databaseConnection.query(
         
         databaseConnection.end(function(err) {
             if (err) {
-                console.log(err);
+                console.error(err);
                 return;
             };
 

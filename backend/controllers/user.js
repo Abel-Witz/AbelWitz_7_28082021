@@ -182,7 +182,7 @@ function updateUser(req, res, requestData) {
             };
             
 
-            // If the user client sent a profile picture we save it
+            // If the client sent a profile picture we save it
             if (req.file) {
                 imageUpload.writeBufferIntoFile(req.file, fileName)
                     .catch((error) => {
@@ -214,7 +214,12 @@ exports.update = (req, res) => {
         }
         
         // Get request data no matter of where it is, in form data or body
-        const requestData = util.handleRequestData(req, res);
+        let requestData = util.handleRequestData(req);
+        if (requestData === false) {
+            res.status(400).json({message: "data format is incorrect, must be in stringified JSON !"});
+            return;
+        }
+        requestData = (requestData) ? requestData : {};
 
         // Check for errors
         if ( !util.isMysql_UNSIGNED_INT(requestData.userId) ) {
