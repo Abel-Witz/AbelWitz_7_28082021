@@ -187,7 +187,6 @@ function updateUser(req, res, requestData) {
                 imageUpload.writeBufferIntoFile(req.file, fileName)
                     .catch((error) => {
                         console.error(err);
-                        res.status(500).json({message: "Internal server error"});
                     });
 
                 // If the old user had a profile picture we delete it

@@ -15,9 +15,9 @@ require("../util/database-connection")()
     });
 
 
-  /*******************/
- /* Post a new post */
-/*******************/
+  /*********************************************/
+ /* Post a new post (either text or an image) */
+/*********************************************/
 exports.post = (req, res) => {
     imageUpload.multerMiddleware(req, res, function (err) {
         // Handle multer errors
@@ -47,7 +47,7 @@ exports.post = (req, res) => {
             return;
         };
 
-        if (typeof requestData.text === "string" && requestData.text.length > 40000) {
+        if (requestData.text && (typeof requestData.text !== "string" || requestData.text.length > 40000)) {
             res.status(400).json({message: "text must be a string with a length under 40000 characters"});
             return;
         }
@@ -66,7 +66,7 @@ exports.post = (req, res) => {
 
         // Insert the post in the DB
         databaseConnection.query(
-            `INSERT INTO Posts VALUES(NULL, ?, ?, ?, ?);`, [requestData.title, text, fileUrl, req.verifiedUserId],
+            `INSERT INTO Post VALUES(NULL, ?, ?, ?, ?);`, [requestData.title, text, fileUrl, req.verifiedUserId],
             function (err, result) {
                 if (err) {
                     if (err.errno === 1452) { // Foreign key constraint fail: The account associated to the JWT userId was deleted before uploading the post
@@ -84,7 +84,6 @@ exports.post = (req, res) => {
                     imageUpload.writeBufferIntoFile(req.file, fileName)
                         .catch((error) => {
                             console.error(err);
-                            res.status(500).json({message: "Internal server error"});
                         });
                 };
 
@@ -99,7 +98,7 @@ exports.post = (req, res) => {
 /*********************/
 exports.getPosts = (req, res) => {
     databaseConnection.query(
-        `SELECT * FROM Posts`,
+        `SELECT * FROM Post`,
         function (err, result) {
             if (err) {
                 console.error(err);
@@ -124,7 +123,7 @@ exports.getPostById = (req, res) => {
 
     // Select the post from db
     databaseConnection.query(
-        `SELECT * FROM Posts WHERE id=?`, [req.params.id],
+        `SELECT * FROM Post WHERE id=?`, [req.params.id],
         function (err, result) {
             if (err) {
                 console.error(err);
@@ -223,10 +222,10 @@ exports.modifyPost = (req, res) => {
         // If we only modify the title then we don't gather the old image_url because we don't need it
         const onlyModifyTitle = (setString === "SET title=?") 
         const query = onlyModifyTitle
-        ? `UPDATE Posts ${setString} WHERE id=${req.params.id} AND authorId=${req.verifiedUserId};`
+        ? `UPDATE Post ${setString} WHERE id=${req.params.id} AND authorId=${req.verifiedUserId};`
 
-        : `SELECT image_url FROM Posts WHERE id=${req.params.id};
-        UPDATE Posts ${setString} WHERE id=${req.params.id} AND authorId=${req.verifiedUserId};`;
+        : `SELECT image_url FROM Post WHERE id=${req.params.id};
+        UPDATE Post ${setString} WHERE id=${req.params.id} AND authorId=${req.verifiedUserId};`;
 
         // Query the modifications
         databaseConnection.query(
@@ -251,7 +250,6 @@ exports.modifyPost = (req, res) => {
                             imageUpload.writeBufferIntoFile(req.file, fileName)
                                 .catch((error) => {
                                     console.error(err);
-                                    res.status(500).json({message: "Internal server error"});
                                 });
                         }
 
@@ -282,8 +280,8 @@ exports.deletePost = (req, res) => {
 
     // Delete the post
     databaseConnection.query(
-        `SELECT image_url FROM Posts WHERE id=?;
-        DELETE FROM Posts WHERE id=? AND authorId=?`, [req.params.id, req.params.id, req.verifiedUserId],
+        `SELECT image_url FROM Post WHERE id=?;
+        DELETE FROM Post WHERE id=? AND authorId=?`, [req.params.id, req.params.id, req.verifiedUserId],
         function (err, result) {
             if (err) {
                 console.error(err);

@@ -28,7 +28,7 @@ databaseConnection.query(
     )
     ENGINE=INNODB;
     
-    CREATE TABLE IF NOT EXISTS Posts (
+    CREATE TABLE IF NOT EXISTS Post (
         id INT UNSIGNED AUTO_INCREMENT,
         title VARCHAR(300) NOT NULL,
         text TEXT,
