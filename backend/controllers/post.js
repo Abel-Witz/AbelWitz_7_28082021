@@ -43,7 +43,7 @@ exports.post = (req, res) => {
 
         // Check for errors
         if (typeof requestData.title !== "string" || requestData.title.length < 1 || requestData.title.length > 300) {
-            res.status(400).json({message: "title length must be between 1 and 300 characters"});
+            res.status(400).json({message: "title must be a string with a length between 1 and 300 characters"});
             return;
         };
 
@@ -66,7 +66,7 @@ exports.post = (req, res) => {
 
         // Insert the post in the DB
         databaseConnection.query(
-            `INSERT INTO Post VALUES(NULL, ?, ?, ?, ?);`, [requestData.title, text, fileUrl, req.verifiedUserId],
+            `INSERT INTO Post VALUES(NULL, ?, ?, ?, ?, 0, 0);`, [requestData.title, text, fileUrl, req.verifiedUserId],
             function (err, result) {
                 if (err) {
                     if (err.errno === 1452) { // Foreign key constraint fail: The account associated to the JWT userId was deleted before uploading the post
@@ -134,7 +134,7 @@ exports.getPostById = (req, res) => {
             if (result[0]) {
                 res.status(200).json(result[0]);
             } else {
-                res.status(401).json({message: "The post don't exist"});
+                res.status(400).json({message: "The post don't exist"});
             };
         });
 }
@@ -171,7 +171,7 @@ exports.modifyPost = (req, res) => {
         };
 
         if ( requestData.title && (typeof requestData.title !== "string" || requestData.title.length < 1 || requestData.title.length > 300) ) {
-            res.status(400).json({message: "title length must be between 1 and 300 characters"});
+            res.status(400).json({message: "title must be a string with a length between 1 and 300 characters"});
             return;
         };
 
@@ -241,7 +241,7 @@ exports.modifyPost = (req, res) => {
                     if (result.affectedRows !== 0) {
                         res.status(200).json({message: "Post updated successfully !"});
                     } else {
-                        res.status(401).json({message: "The post don't exist or you aren't the author"});
+                        res.status(400).json({message: "The post don't exist or you aren't the author"});
                     }
                 } else {
                     if (result[1].affectedRows !== 0) {
@@ -260,7 +260,7 @@ exports.modifyPost = (req, res) => {
 
                         res.status(200).json({message: "Post updated successfully !"});
                     } else {
-                        res.status(401).json({message: "The post don't exist or you aren't the author"});
+                        res.status(400).json({message: "The post don't exist or you aren't the author"});
                     }
                 }
             });
@@ -296,7 +296,58 @@ exports.deletePost = (req, res) => {
             if (result[1].affectedRows !== 0) {
                 res.status(200).json({message: "Post deleted successfully !"});
             } else {
-                res.status(401).json({message: "The post don't exist or you aren't the author"});
+                res.status(400).json({message: "The post don't exist or you aren't the author"});
             }
+        });
+}
+
+
+
+  /***************/
+ /* Rate a post */
+/***************/
+exports.ratePost = (req, res) => {
+    // Check for errors
+    if (!util.isMysql_UNSIGNED_INT(req.params.id)) {
+        res.status(400).json({message: "id must be a number between 1 and 4 294 967 295"});
+        return;
+    };
+
+    // Determine the procedure to call (like, dislike or neutral)
+    let query;
+    switch (req.body.rating) {
+        case 1:
+            query = "CALL like_post(?, ?);"
+            break;
+        case 0:
+            query = "CALL neutral_post(?, ?);"
+            break;
+        case -1:
+            query = "CALL dislike_post(?, ?);"
+            break;
+        default:
+            res.status(400).json({message: "rating must be a number equal to 1, 0 or -1 !"});
+            return;
+    };
+
+    // Like the post
+    databaseConnection.query(
+        query, [req.params.id, req.verifiedUserId],
+        function (err, result) {
+            if (err) {
+                if (err.errno === 1062) {
+                    res.status(400).json({message: "You tried to like or dislike the same post two times"});
+                    return;
+                } else if (err.errno === 1452) {
+                    res.status(400).json({message: "The post don't exist"});
+                    return;
+                }
+
+                console.error(err);
+                res.status(500).json({message: "Internal server error"});
+                return;
+            };
+
+            res.status(200).json({message: "Updated rating successfully !"});
         });
 }

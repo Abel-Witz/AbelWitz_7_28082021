@@ -56,7 +56,6 @@ const upload = multer({
         } else {
             const res = req.res;
             res.status(400).json({message: "Only png, jpeg and jpg images are allowed !"});
-            cb(null, false);
         };
     }
 });

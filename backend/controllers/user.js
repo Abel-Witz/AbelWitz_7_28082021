@@ -23,22 +23,22 @@ require("../util/database-connection")()
 exports.signup = (req, res) => {
     // Check for errors
     if ( !util.isFirstNameValid(req.body.firstName) ) {
-        res.status(400).json({message: "firstName length must be between 2 and 20 characters"});
+        res.status(400).json({message: "firstName must be a string with a length between 2 and 20 characters"});
         return;
     };
 
     if ( !util.isLastNameValid(req.body.lastName) ) {
-        res.status(400).json({message: "lastName length must be between 2 and 20 characters"});
+        res.status(400).json({message: "lastName must be a string with a length between 2 and 20 characters"});
         return;
     };
 
     if ( !util.isEmailValid(req.body.email) ) {
-        res.status(400).json({message: "Email must be of the format example@mail.com and its length cannot exceed 65 characters"});
+        res.status(400).json({message: "email must be a string with the format example@mail.com and its length cannot exceed 65 characters"});
         return;
     };
 
     if ( !util.isPasswordSecure(req.body.password) ) {
-        res.status(400).json({message: "Password must be between 8 and 20 characters including 1 uppercase letter, 1 special character, alphanumeric characters"});
+        res.status(400).json({message: "password must be a string with a length between 8 and 20 characters including 1 uppercase letter, 1 special character, alphanumeric characters"});
         return;
     };
 
@@ -75,12 +75,12 @@ exports.signup = (req, res) => {
 exports.login = (req, res) => {
     // Check for errors
     if ( !util.isEmailValid(req.body.email) ) {
-        res.status(400).json({message: "Email must be of the format example@mail.com and its length cannot exceed 65 characters"});
+        res.status(400).json({message: "email must be a string with the format example@mail.com and its length cannot exceed 65 characters"});
         return;
     };
 
     if ( !util.isPasswordSecure(req.body.password) ) {
-        res.status(400).json({message: "Password must be between 8 and 20 characters including 1 uppercase letter, 1 special character, alphanumeric characters"});
+        res.status(400).json({message: "password must be a string with a length between 8 and 20 characters including 1 uppercase letter, 1 special character, alphanumeric characters"});
         return;
     };
 
@@ -232,23 +232,23 @@ exports.update = (req, res) => {
         }
 
         if ( requestData.firstName && !util.isFirstNameValid(requestData.firstName) ) {
-            res.status(400).json({message: "firstName length must be between 2 and 20 characters"});
+            res.status(400).json({message: "firstName must be a string with a length between 2 and 20 characters"});
             return;
         };
 
         if ( requestData.lastName && !util.isLastNameValid(requestData.lastName) ) {
-            res.status(400).json({message: "lastName length must be between 2 and 20 characters"});
+            res.status(400).json({message: "lastName must be a string with a length between 2 and 20 characters"});
             return;
         };
 
         if (requestData.email && !util.isEmailValid(requestData.email)) {
-            res.status(400).json({message: "Email must be of the format example@mail.com and its length cannot exceed 65 characters"});
+            res.status(400).json({message: "email must be a string with the format example@mail.com and its length cannot exceed 65 characters"});
             return;
         }
 
         if (requestData.password) {
             if ( !util.isPasswordSecure(requestData.password) ) {
-                res.status(400).json({message: "Password must be between 8 and 20 characters including 1 uppercase letter, 1 special character, alphanumeric characters"});
+                res.status(400).json({message: "password must be a string with a length between 8 and 20 characters including 1 uppercase letter, 1 special character, alphanumeric characters"});
                 return;
             };
 
