@@ -117,7 +117,7 @@ exports.getPosts = (req, res) => {
 exports.getPostById = (req, res) => {
     // Check for errors
     if (!util.isMysql_UNSIGNED_INT(req.params.id)) {
-        res.status(400).json({message: "id must be a number between 1 and 4 294 967 295"});
+        res.status(400).json({message: ":id must be a number between 1 and 4 294 967 295"});
         return;
     };
 
@@ -166,7 +166,7 @@ exports.modifyPost = (req, res) => {
 
         // Check for errors
         if (!util.isMysql_UNSIGNED_INT(req.params.id)) {
-            res.status(400).json({message: "id must be a number between 1 and 4 294 967 295"});
+            res.status(400).json({message: ":id must be a number between 1 and 4 294 967 295"});
             return;
         };
 
@@ -222,10 +222,10 @@ exports.modifyPost = (req, res) => {
         // If we only modify the title then we don't gather the old image_url because we don't need it
         const onlyModifyTitle = (setString === "SET title=?") 
         const query = onlyModifyTitle
-        ? `UPDATE Post ${setString} WHERE id=${req.params.id} AND authorId=${req.verifiedUserId};`
+        ? `UPDATE Post ${setString} WHERE id=${req.params.id} AND author_id=${req.verifiedUserId};`
 
         : `SELECT image_url FROM Post WHERE id=${req.params.id};
-        UPDATE Post ${setString} WHERE id=${req.params.id} AND authorId=${req.verifiedUserId};`;
+        UPDATE Post ${setString} WHERE id=${req.params.id} AND author_id=${req.verifiedUserId};`;
 
         // Query the modifications
         databaseConnection.query(
@@ -274,14 +274,14 @@ exports.modifyPost = (req, res) => {
 exports.deletePost = (req, res) => {
     // Check for errors
     if (!util.isMysql_UNSIGNED_INT(req.params.id)) {
-        res.status(400).json({message: "id must be a number between 1 and 4 294 967 295"});
+        res.status(400).json({message: ":id must be a number between 1 and 4 294 967 295"});
         return;
     };
 
     // Delete the post
     databaseConnection.query(
         `SELECT image_url FROM Post WHERE id=?;
-        DELETE FROM Post WHERE id=? AND authorId=?`, [req.params.id, req.params.id, req.verifiedUserId],
+        DELETE FROM Post WHERE id=? AND author_id=?`, [req.params.id, req.params.id, req.verifiedUserId],
         function (err, result) {
             if (err) {
                 console.error(err);
@@ -309,7 +309,7 @@ exports.deletePost = (req, res) => {
 exports.ratePost = (req, res) => {
     // Check for errors
     if (!util.isMysql_UNSIGNED_INT(req.params.id)) {
-        res.status(400).json({message: "id must be a number between 1 and 4 294 967 295"});
+        res.status(400).json({message: ":id must be a number between 1 and 4 294 967 295"});
         return;
     };
 
@@ -339,7 +339,7 @@ exports.ratePost = (req, res) => {
                     res.status(400).json({message: "You tried to like or dislike the same post two times"});
                     return;
                 } else if (err.errno === 1452) {
-                    res.status(400).json({message: "The post don't exist"});
+                    res.status(400).json({message: "The post don't exist or your account was deleted"});
                     return;
                 }
 

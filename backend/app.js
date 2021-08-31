@@ -39,6 +39,7 @@
     const path = require("path");
     const userRouter = require("./routes/user");
     const postRouter = require("./routes/post");
+    const commentRouter = require("./routes/comment");
     
     app.use((req, res, next) => {
         res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_ADDRESS);
@@ -50,6 +51,7 @@
     app.use(express.json());
     app.use("/api/user", userRouter);
     app.use("/api/post", postRouter);
+    app.use("/api/comment", commentRouter);
 
     const server = app.listen(process.env.BACKEND_PORT, process.env.BACKEND_HOST, () => {
         const host = server.address().address;
