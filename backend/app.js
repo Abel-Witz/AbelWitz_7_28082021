@@ -40,11 +40,14 @@
     const userRouter = require("./routes/user");
     const postRouter = require("./routes/post");
     const commentRouter = require("./routes/comment");
-    
+
+    // CORS
     app.use((req, res, next) => {
         res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_ADDRESS);
+        res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+        res.setHeader("Access-Control-Allow-Methods", "PUT, DELETE")
         next();
-    });
+    })
 
     app.use("/image-uploads", express.static(path.join(__dirname, "image-uploads")));
 
