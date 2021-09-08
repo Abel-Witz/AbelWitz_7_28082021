@@ -30,7 +30,7 @@ FLUSH PRIVILEGES;
 
 3. Vous pouvez lancer l'application front avec ```yarn serve```
 
-4. Assurez vous que l'adresse et le port de l'application frontend correspondent bien à la variable FRONTEND_ADDRESS afin de pouvoir faire des requêtes au backend
+4. Assurez vous que l'adresse et le port de l'application frontend correspondent bien à la variable FRONTEND_ADDRESS afin de pouvoir faire des requêtes au backend (attention: l'adresse doit être exacte et localhost n'est pas considéré comme étant égal à 127.0.0.1)
 
 ## Modération
 Vous pouvez donner les droits d'administrateur à un utilisateur avec ```node set-admin <emailDeLutilisateur>```
