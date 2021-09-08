@@ -24,7 +24,7 @@ FLUSH PRIVILEGES;
 ## Installation Front-end
 1. Déplacez vous dans le dossier frontend 
 
-2. Vous aurez besoin d'installer les dépendances en faisant un ```yarn install```
+2. Vous aurez besoin d'installer les dépendances en faisant un ```yarn install``` (si vous n'avez pas yarn installé vous devrez l'installer avec ```npm install --global yarn```)
 
 3. Vous pouvez lancer l'application front avec ```yarn serve```
 
