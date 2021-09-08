@@ -19,7 +19,9 @@ FLUSH PRIVILEGES;
 
 4. Vous devrez créer un fichier .env (vous pouvez copier le contenu de .env.example afin que les variables correspondent à l'étape 1)
 
-5. Vous pouvez lancer le serveur avec ```node app```
+5. Vous devrez initaliser la base de données avec ```node database-init```
+
+6. Vous pouvez lancer le serveur avec ```node app```
 
 ## Installation Front-end
 1. Déplacez vous dans le dossier frontend 
@@ -29,6 +31,13 @@ FLUSH PRIVILEGES;
 3. Vous pouvez lancer l'application front avec ```yarn serve```
 
 4. Assurez vous que l'adresse et le port de l'application frontend correspondent bien à la variable FRONTEND_ADDRESS afin de pouvoir faire des requêtes au backend
+
+## Modération
+Vous pouvez donner les droits d'administrateur à un utilisateur avec ```node set-admin <emailDeLutilisateur>```
+
+Vous pouvez enlever les droits d'administrateur à un utilisateur avec ```node remove-admin <emailDeLutilisateur>```
+
+Afin d'avoir les droits d'administrateur l'utilisateur devra se reconnecter
 
 ## Configuration avancée du fichier .env
 |Variable|Utilité|Exemple|
