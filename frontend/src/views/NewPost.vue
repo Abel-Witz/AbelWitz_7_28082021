@@ -2,10 +2,10 @@
   <div>
     <Header>
       <li class="nav-item" id="newPostNavItem">
-        <router-link to="/nouveau-post" class="nav-link">Nouveau post</router-link>
+        <router-link to="/nouveau-post" class="nav-link active" aria-current="page">Nouveau post</router-link>
       </li>
       <li class="nav-item" id="profileNavItem">
-        <router-link :to="'/profil/'+userId" class="nav-link">Mon profil</router-link>
+        <router-link :to="'/profil/'+userId" class="nav-link" id="profileRouterLink">Mon profil</router-link>
       </li>
       <li class="nav-item" id="disconnectNavItem">
         <a href="#" class="nav-link" id="disconnectButton">Se déconnecter</a>
@@ -19,14 +19,9 @@
     </Header>
 
     <Main>
-      <div class="row">
-        <div class="col-md-8 col-lg-6 mx-auto">
-          <h1 class="h5 fw-bold text-decoration-underline text-center mt-3 mb-4">Vie privée</h1>
-          <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat pariatur quasi iure id consectetur nisi exercitationem, dolore voluptates dolores, nulla soluta veniam error suscipit doloribus. Tempora nulla vero reprehenderit nisi.
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aliquid impedit eum provident. Doloribus soluta perspiciatis earum eveniet nobis nisi quis, non quibusdam beatae optio sapiente dolore et? Sed, aliquam similique?
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Doloremque ut, ratione tempore quas soluta minus velit quia ex atque deserunt ipsa quaerat. Esse nulla laborum suscipit quia modi ipsa repudiandae.
-          </p>
+      <div class="row mb-4">
+        <div class="col-md-10 mx-auto p-0">
+          <PostForm />
         </div>
       </div>
     </Main>
@@ -39,21 +34,23 @@
 import Header from "../components/Header.vue"
 import Main from "../components/Main.vue"
 import Footer from "../components/Footer.vue"
+import PostForm from "../components/PostForm.vue"
 
 export default {
-  created () {
-    document.title = "Vie privée - Groupomania";
-  },
   components: {
     Header,
     Main,
-    Footer
+    Footer,
+    PostForm
   },
   computed: {
     // Get userId in localStorage
     userId() {
       return localStorage.getItem('userId');
     }
+  },
+  created () {
+    document.title = "Nouveau post - Groupomania";
   },
   mounted() {
     const component = this;

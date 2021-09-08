@@ -32,7 +32,7 @@ exports.handleRequestData = function(req) {
 exports.isEmailValid = function(email) {
     const emailRegex = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
-    if ( emailRegex.test(email) && email.length < 66) {
+    if ( emailRegex.test(email) ) {
         return true;
     };
 
@@ -40,7 +40,7 @@ exports.isEmailValid = function(email) {
 };
 
 exports.isPasswordSecure = function(password) {
-    const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-./\\]).{8,20}$/;
+    const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-./\\]).{8,}$/;
 
     if ( passwordRegex.test(password) ) {
         return true;

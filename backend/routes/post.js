@@ -4,13 +4,12 @@ const postController = require("../controllers/post");
 const authMiddleware = require("../middlewares/auth");
 
 // Posts routes
-router.post("/", authMiddleware, postController.post);
-router.get("/", postController.getPosts);
-router.get("/:id", postController.getPostById);
-router.patch("/:id", authMiddleware, postController.modifyPost);
-router.delete("/:id", authMiddleware, postController.deletePost);
+router.post("/", authMiddleware.force, postController.post);
+router.get("/", authMiddleware.free, postController.getPosts);
+router.get("/:id", authMiddleware.free, postController.getPostById);
+router.delete("/:id", authMiddleware.force, postController.deletePost);
 
 // Rate a post
-router.post("/:id/rate", authMiddleware, postController.ratePost);
+router.post("/:id/rate", authMiddleware.force, postController.ratePost);
 
 module.exports = router;

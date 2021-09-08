@@ -24,6 +24,7 @@ databaseConnection.query(
         email VARCHAR(65) UNIQUE NOT NULL,
         password_hash BINARY(60) NOT NULL,
         profile_picture_url VARCHAR(100),
+        is_admin BOOLEAN DEFAULT FALSE,
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB;
@@ -34,6 +35,7 @@ databaseConnection.query(
         text TEXT,
         image_url VARCHAR(100),
         author_id BIGINT UNSIGNED,
+        date DATETIME NOT NULL,
         calculated_likes INT UNSIGNED NOT NULL DEFAULT 0,
         calculated_dislikes INT UNSIGNED NOT NULL DEFAULT 0,
         PRIMARY KEY (id),
@@ -83,6 +85,7 @@ databaseConnection.query(
         text TEXT NOT NULL,
         post_id BIGINT UNSIGNED NOT NULL,
         author_id BIGINT UNSIGNED,
+        \`date\` DATETIME NOT NULL,
         calculated_likes INT UNSIGNED NOT NULL DEFAULT 0,
         calculated_dislikes INT UNSIGNED NOT NULL DEFAULT 0,
         PRIMARY KEY (id),
@@ -105,7 +108,7 @@ databaseConnection.query(
         UNIQUE(author_id, comment_id),
         CONSTRAINT fk_like_comment_id
             FOREIGN KEY (comment_id)
-            REFERENCES Post(id)
+            REFERENCES Comment(id)
             ON DELETE CASCADE,
         CONSTRAINT fk_comment_like_author_id
             FOREIGN KEY (author_id)
@@ -122,7 +125,7 @@ databaseConnection.query(
         UNIQUE(author_id, comment_id),
         CONSTRAINT fk_dislike_comment_id
             FOREIGN KEY (comment_id)
-            REFERENCES Post(id)
+            REFERENCES Comment(id)
             ON DELETE CASCADE,
         CONSTRAINT fk_comment_dislike_author_id
             FOREIGN KEY (author_id)

@@ -24,6 +24,7 @@ exports.post = (req, res) => {
         if (err) {
             if (err.code === "LIMIT_UNEXPECTED_FILE") {
                 res.status(400).json({message: `Unexpected file field: '${err.field}'`});
+                return;
             } else if (err) {
                 console.error(err);
                 res.status(500).json({message: "Internal server error"});
@@ -66,7 +67,7 @@ exports.post = (req, res) => {
 
         // Insert the post in the DB
         databaseConnection.query(
-            `INSERT INTO Post VALUES(NULL, ?, ?, ?, ?, 0, 0);`, [requestData.title, text, fileUrl, req.verifiedUserId],
+            `INSERT INTO Post VALUES(NULL, ?, ?, ?, ?, NOW(), 0, 0);`, [requestData.title, text, fileUrl, req.verifiedUserId],
             function (err, result) {
                 if (err) {
                     if (err.errno === 1452) { // Foreign key constraint fail: The account associated to the JWT userId was deleted before uploading the post
@@ -98,7 +99,13 @@ exports.post = (req, res) => {
 /*********************/
 exports.getPosts = (req, res) => {
     databaseConnection.query(
-        `SELECT * FROM Post`,
+        `SELECT Post.id, Post.title, Post.text, Post.image_url, Post.author_id, Post.calculated_likes, Post.calculated_dislikes, Post.date,
+        !ISNULL(Post_Like.post_id) as "you_liked", !ISNULL(Post_Dislike.post_id) as "you_disliked", User.first_name, User.last_name
+        FROM Post
+        LEFT OUTER JOIN User ON Post.author_id = User.id
+        LEFT OUTER JOIN Post_Like ON Post.id = Post_Like.post_id AND Post_Like.author_id = ? 
+        LEFT OUTER JOIN Post_Dislike ON Post.id = Post_Dislike.post_id AND Post_Dislike.author_id = ?
+        ORDER BY Post.id DESC;`, [req.verifiedUserId, req.verifiedUserId],
         function (err, result) {
             if (err) {
                 console.error(err);
@@ -123,7 +130,14 @@ exports.getPostById = (req, res) => {
 
     // Select the post from db
     databaseConnection.query(
-        `SELECT * FROM Post WHERE id=?`, [req.params.id],
+        `SELECT Post.title, Post.text, Post.image_url, Post.author_id, Post.calculated_likes, Post.calculated_dislikes, Post.date, 
+        !ISNULL(Post_Like.post_id) as "you_liked", !ISNULL(Post_Dislike.post_id) as "you_disliked", User.first_name, User.last_name
+        FROM Post
+        LEFT OUTER JOIN User ON Post.author_id = User.id 
+        LEFT OUTER JOIN Post_Like ON Post.id = Post_Like.post_id AND Post_Like.author_id = ?
+        LEFT OUTER JOIN Post_Dislike ON Post.id = Post_Dislike.post_id AND Post_Dislike.author_id = ?
+        WHERE Post.id=?
+        `, [req.verifiedUserId, req.verifiedUserId, req.params.id],
         function (err, result) {
             if (err) {
                 console.error(err);
@@ -141,134 +155,6 @@ exports.getPostById = (req, res) => {
 
 
   /***********************/
- /* Modify a post by id */
-/***********************/
-exports.modifyPost = (req, res) => {
-    imageUpload.multerMiddleware(req, res, function (err) {
-        // Handle multer errors
-        if (err) {
-            if (err.code === "LIMIT_UNEXPECTED_FILE") {
-                res.status(400).json({message: `Unexpected file field: '${err.field}'`});
-            } else if (err) {
-                console.error(err);
-                res.status(500).json({message: "Internal server error"});
-                return;
-            }
-        }
-        
-        // Get request data no matter of where it is, in form data or body
-        let requestData = util.handleRequestData(req);
-        if (requestData === false) {
-            res.status(400).json({message: "data format is incorrect, must be in stringified JSON !"});
-            return;
-        }
-        requestData = (requestData) ? requestData : {};
-
-        // Check for errors
-        if (!util.isMysql_UNSIGNED_INT(req.params.id)) {
-            res.status(400).json({message: ":id must be a number between 1 and 4 294 967 295"});
-            return;
-        };
-
-        if ( requestData.title && (typeof requestData.title !== "string" || requestData.title.length < 1 || requestData.title.length > 300) ) {
-            res.status(400).json({message: "title must be a string with a length between 1 and 300 characters"});
-            return;
-        };
-
-        if ( requestData.text && (typeof requestData.text !== "string" || requestData.text.length > 40000) ) {
-            res.status(400).json({message: "text must be a string with a length under 40000 characters"});
-            return;
-        }
-
-        // Store the profile picture filename for later
-        let fileName;
-
-        if (req.file) {
-            fileName = imageUpload.generateFilename(req.file);
-        }
-
-        // Generate the SET query containing all the modifications
-        const modifications = {};
-        if (req.file) {
-            modifications.image_url = imageUpload.getUrlFromImageFilename(fileName);
-            modifications.text = null;
-        } else if (requestData.text) {
-            modifications.image_url = null;
-            modifications.text = requestData.text;
-        }
-
-        if (requestData.title) modifications.title = requestData.title;
-
-        if (Object.entries(modifications).length === 0) {
-            res.status(400).json({message: "You didn't provided any modifications to post"});
-            return;
-        }
-
-        const values = [];
-        let setString = "SET ";
-        let iteratedOnce = false;
-
-        for (const key in modifications) {
-            if (iteratedOnce) {
-                setString += ", ";
-            } else {
-                iteratedOnce = true;
-            };
-
-            setString += `${key}=?`;
-            values.push(modifications[key]);
-        };
-
-        // If we only modify the title then we don't gather the old image_url because we don't need it
-        const onlyModifyTitle = (setString === "SET title=?") 
-        const query = onlyModifyTitle
-        ? `UPDATE Post ${setString} WHERE id=${req.params.id} AND author_id=${req.verifiedUserId};`
-
-        : `SELECT image_url FROM Post WHERE id=${req.params.id};
-        UPDATE Post ${setString} WHERE id=${req.params.id} AND author_id=${req.verifiedUserId};`;
-
-        // Query the modifications
-        databaseConnection.query(
-            query, values,
-            function (err, result) {
-                if (err) {
-                    console.error(err);
-                    res.status(500).json({message: "Internal server error"});
-                    return;
-                };
-
-                if (onlyModifyTitle) {
-                    if (result.affectedRows !== 0) {
-                        res.status(200).json({message: "Post updated successfully !"});
-                    } else {
-                        res.status(400).json({message: "The post don't exist or you aren't the author"});
-                    }
-                } else {
-                    if (result[1].affectedRows !== 0) {
-                        // If the client sent a picture we save it
-                        if (req.file) {
-                            imageUpload.writeBufferIntoFile(req.file, fileName)
-                                .catch((error) => {
-                                    console.error(err);
-                                });
-                        }
-
-                        // If the old post had a picture we delete it
-                        if (result[0][0].image_url) {
-                            imageUpload.removeImageFromFilename(result[0][0].image_url);
-                        }
-
-                        res.status(200).json({message: "Post updated successfully !"});
-                    } else {
-                        res.status(400).json({message: "The post don't exist or you aren't the author"});
-                    }
-                }
-            });
-    })
-}
-
-
-  /***********************/
  /* Delete a post by id */
 /***********************/
 exports.deletePost = (req, res) => {
@@ -279,9 +165,21 @@ exports.deletePost = (req, res) => {
     };
 
     // Delete the post
+    let query;
+    let values;
+
+    if (req.userIsAdmin === true) {
+        query = `SELECT image_url FROM Post WHERE id=?;
+        DELETE FROM Post WHERE id=?`;
+        values = [req.params.id, req.params.id];
+    } else {
+        query = `SELECT image_url FROM Post WHERE id=?;
+        DELETE FROM Post WHERE id=? AND author_id=?`;
+        values = [req.params.id, req.params.id, req.verifiedUserId];
+    }
+
     databaseConnection.query(
-        `SELECT image_url FROM Post WHERE id=?;
-        DELETE FROM Post WHERE id=? AND author_id=?`, [req.params.id, req.params.id, req.verifiedUserId],
+        query, values,
         function (err, result) {
             if (err) {
                 console.error(err);

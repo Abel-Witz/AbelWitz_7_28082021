@@ -19,14 +19,18 @@
     </Header>
 
     <Main>
-      <div class="row">
-        <div class="col-md-8 col-lg-6 mx-auto">
-          <h1 class="h5 fw-bold text-decoration-underline text-center mt-3 mb-4">Vie privée</h1>
-          <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat pariatur quasi iure id consectetur nisi exercitationem, dolore voluptates dolores, nulla soluta veniam error suscipit doloribus. Tempora nulla vero reprehenderit nisi.
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aliquid impedit eum provident. Doloribus soluta perspiciatis earum eveniet nobis nisi quis, non quibusdam beatae optio sapiente dolore et? Sed, aliquam similique?
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Doloremque ut, ratione tempore quas soluta minus velit quia ex atque deserunt ipsa quaerat. Esse nulla laborum suscipit quia modi ipsa repudiandae.
-          </p>
+      <div class="row mb-4">
+        <div class="col-md-10 mx-auto">
+          <PostCard :post="post" v-if="post && comments" class="mb-4"/>
+        </div>
+        <div v-if="userId && post && comments" class="col-10 col-md-9 mx-auto p-0">
+          <CommentForm class="mb-3" :postId="parseInt($route.params.postId)" @commentsUpdateEvent="refreshComments"/>
+        </div>
+        <div v-if="post && comments && comments.length !== 0" class="col-10 col-md-9 mx-auto border rounded-3">
+          <h5 class="mt-3 mb-3 ms-1">Commentaires</h5>
+          <div v-for="comment in comments" :key="comment.id" class="px-2 px-md-4 mb-4">
+            <Comment :comment="comment" @commentsUpdateEvent="refreshComments"/>
+          </div>
         </div>
       </div>
     </Main>
@@ -39,15 +43,24 @@
 import Header from "../components/Header.vue"
 import Main from "../components/Main.vue"
 import Footer from "../components/Footer.vue"
+import PostCard from "../components/PostCard.vue"
+import CommentForm from "../components/CommentForm.vue"
+import Comment from "../components/Comment.vue"
 
 export default {
-  created () {
-    document.title = "Vie privée - Groupomania";
-  },
   components: {
     Header,
     Main,
-    Footer
+    Footer,
+    PostCard,
+    CommentForm,
+    Comment
+  },
+  data() {
+    return {
+      post: undefined,
+      comments: undefined
+    }
   },
   computed: {
     // Get userId in localStorage
@@ -55,8 +68,60 @@ export default {
       return localStorage.getItem('userId');
     }
   },
+  methods: {
+    // Refresh comments after posting one or deleting one
+    refreshComments() {
+      const component = this;
+
+      const options = {
+        method: "GET",
+        headers: {
+          'Authorization': localStorage.getItem('token')
+        }
+      }
+
+      fetch(`http://localhost:3000/api/comment?postId=${component.$route.params.postId}`, options)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(json) {
+          component.comments = json;
+        });
+    }
+  },
+  created () {
+    document.title = "Groupomania";
+  },
   mounted() {
     const component = this;
+
+    // Load post data in this.post
+    const options = {
+      method: "GET",
+      headers: {
+        'Authorization': localStorage.getItem('token')
+      }
+    }
+
+    fetch(`http://localhost:3000/api/post/${component.$route.params.postId}`, options)
+      .then(async function(response) {
+        const json = await response.json();
+
+        if (response.ok) {
+          component.post = json;
+          document.title = json.title + " - Groupomania";
+        } else if (json.message === "The post don't exist") {
+          component.$router.push("/");
+        }
+
+      })
+      .catch(function(error) {
+        console.error(error);
+      })
+
+    // Load post comments
+    component.refreshComments();
+
 
     /****************/
     /* Navbar logic */

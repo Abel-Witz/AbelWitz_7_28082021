@@ -3,7 +3,7 @@
     <footer class="container">
       <div class="row">
         <div class="col">
-          <ul class="list-inline p-3 m-0 text-center">
+          <ul class="list-inline p-4 m-0 text-center">
               <li class="list-inline-item list-styled">
                   <router-link to="/a-propos" class="text-decoration-none link-secondary">À propos</router-link>
               </li>

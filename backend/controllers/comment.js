@@ -31,7 +31,7 @@ exports.postComment = (req, res) => {
 
     // Post the comment
     databaseConnection.query(
-        "INSERT INTO Comment VALUES(NULL, ?, ?, ?, 0, 0);", [req.body.text, req.body.postId, req.verifiedUserId],
+        "INSERT INTO Comment VALUES(NULL, ?, ?, ?, NOW(), 0, 0);", [req.body.text, req.body.postId, req.verifiedUserId],
         function (err, result) {
             if (err) {
                 if (err.errno === 1452) {
@@ -61,7 +61,13 @@ exports.getPostComments = (req, res) => {
 
     // Get the post comments
     databaseConnection.query(
-        `SELECT * FROM Comment WHERE post_id=?`, [req.query.postId],
+        `SELECT Comment.id, Comment.text, Comment.author_id, Comment.calculated_likes, Comment.calculated_dislikes, Comment.date,
+        !ISNULL(Comment_Like.comment_id) as "you_liked", !ISNULL(Comment_Dislike.comment_id) as "you_disliked", User.first_name, User.last_name, User.profile_picture_url
+        FROM Comment
+        INNER JOIN User ON Comment.author_id = User.id
+        LEFT OUTER JOIN Comment_Like ON Comment.id = Comment_Like.comment_id AND Comment_Like.author_id = ?
+        LEFT OUTER JOIN Comment_Dislike ON Comment.id = Comment_Dislike.comment_id AND Comment_Dislike.author_id = ?
+        WHERE post_id=? ORDER BY Comment.id ASC;`, [req.verifiedUserId, req.verifiedUserId, req.query.postId],
         function (err, result) {
             if (err) {
                 console.error(err);
@@ -84,9 +90,15 @@ exports.getCommentById = (req, res) => {
         return;
     };
 
-    // Get the post comments
+    // Get the post comment
     databaseConnection.query(
-        `SELECT * FROM Comment WHERE id=?`, [req.params.id],
+        `SELECT Comment.text, Comment.author_id, Comment.calculated_likes, Comment.calculated_dislikes, Comment.date,
+        !ISNULL(Comment_Like.comment_id) as "you_liked", !ISNULL(Comment_Dislike.comment_id) as "you_disliked", User.first_name, User.last_name, User.profile_picture_url 
+        FROM Comment
+        INNER JOIN User ON Comment.author_id = User.id
+        LEFT OUTER JOIN Comment_Like ON Comment.id = Comment_Like.comment_id AND Comment_Like.author_id = ?
+        LEFT OUTER JOIN Comment_Dislike ON Comment.id = Comment_Dislike.comment_id AND Comment_Dislike.author_id = ?
+        WHERE Comment.id=?`, [req.verifiedUserId, req.verifiedUserId, req.params.id],
         function (err, result) {
             if (err) {
                 console.error(err);
@@ -148,8 +160,19 @@ exports.deleteComment = (req, res) => {
     };
 
     // Delete the comment
+    let query;
+    let values;
+
+    if (req.userIsAdmin === true) {
+        query = "DELETE FROM Comment WHERE id=?";
+        values = [req.params.id];
+    } else {
+        query = "DELETE FROM Comment WHERE id=? AND author_id=?";
+        values = [req.params.id, req.verifiedUserId];
+    }
+
     databaseConnection.query(
-        "DELETE FROM Comment WHERE id=? AND author_id=?", [req.params.id, req.verifiedUserId],
+        query, values,
         function (err, result) {
             if (err) {
                 console.error(err);

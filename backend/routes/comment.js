@@ -4,13 +4,13 @@ const commentController = require("../controllers/comment");
 const authMiddleware = require("../middlewares/auth");
 
 // Post comments
-router.post("/", authMiddleware, commentController.postComment);
-router.get("/", commentController.getPostComments);
-router.get("/:id", commentController.getCommentById);
-router.put("/:id", authMiddleware, commentController.modifyComment);
-router.delete("/:id", authMiddleware, commentController.deleteComment);
+router.post("/", authMiddleware.force, commentController.postComment);
+router.get("/", authMiddleware.free, commentController.getPostComments);
+router.get("/:id", authMiddleware.free, commentController.getCommentById);
+router.put("/:id", authMiddleware.force, commentController.modifyComment);
+router.delete("/:id", authMiddleware.force, commentController.deleteComment);
 
 // Rate a comment
-router.post("/:id/rate", authMiddleware, commentController.rateComment);
+router.post("/:id/rate", authMiddleware.force, commentController.rateComment);
 
 module.exports = router;
