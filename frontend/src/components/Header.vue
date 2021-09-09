@@ -3,7 +3,7 @@
     <header class="container">
       <nav class="navbar navbar-expand-lg navbar-light py-3">
         <router-link class="navbar-brand" to="/">
-          <img src="/images/icon-left-font-monochrome-black.svg" alt="" with="30" height="30">
+          <img src="/images/icon-left-font-monochrome-black.svg" aria-label="Groupomania" alt="" with="30" height="30">
         </router-link>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

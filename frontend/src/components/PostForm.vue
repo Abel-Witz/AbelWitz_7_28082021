@@ -31,7 +31,7 @@
         </div>
         <div class="tab-pane fade" id="pills-image" role="tabpanel" aria-labelledby="pills-image-tab">
           <div class="input-group">
-            <input type="file" class="form-control mb-3" id="imageInput" accept=".png,.jpeg,.jpg" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
+            <input type="file" class="form-control mb-3" id="imageInput" accept=".png,.jpeg,.jpg" aria-label="Upload">
             <div class="valid-feedback"></div>
             <div class="invalid-feedback"></div>
           </div>

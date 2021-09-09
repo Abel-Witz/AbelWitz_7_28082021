@@ -7,6 +7,7 @@ const authMiddleware = require("../middlewares/auth");
 router.post("/", authMiddleware.force, postController.post);
 router.get("/", authMiddleware.free, postController.getPosts);
 router.get("/:id", authMiddleware.free, postController.getPostById);
+router.patch("/:id", authMiddleware.force, postController.modifyPost);
 router.delete("/:id", authMiddleware.force, postController.deletePost);
 
 // Rate a post

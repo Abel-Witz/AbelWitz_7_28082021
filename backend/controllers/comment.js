@@ -31,7 +31,7 @@ exports.postComment = (req, res) => {
 
     // Post the comment
     databaseConnection.query(
-        "INSERT INTO Comment VALUES(NULL, ?, ?, ?, NOW(), 0, 0);", [req.body.text, req.body.postId, req.verifiedUserId],
+        "INSERT INTO Comment VALUES(NULL, ?, ?, ?, NOW(), 0, 0, FALSE);", [req.body.text, req.body.postId, req.verifiedUserId],
         function (err, result) {
             if (err) {
                 if (err.errno === 1452) {
@@ -61,7 +61,7 @@ exports.getPostComments = (req, res) => {
 
     // Get the post comments
     databaseConnection.query(
-        `SELECT Comment.id, Comment.text, Comment.author_id, Comment.calculated_likes, Comment.calculated_dislikes, Comment.date,
+        `SELECT Comment.id, Comment.text, Comment.author_id, Comment.calculated_likes, Comment.calculated_dislikes, Comment.date, Comment.was_modified,
         !ISNULL(Comment_Like.comment_id) as "you_liked", !ISNULL(Comment_Dislike.comment_id) as "you_disliked", User.first_name, User.last_name, User.profile_picture_url
         FROM Comment
         INNER JOIN User ON Comment.author_id = User.id
@@ -92,7 +92,7 @@ exports.getCommentById = (req, res) => {
 
     // Get the post comment
     databaseConnection.query(
-        `SELECT Comment.text, Comment.author_id, Comment.calculated_likes, Comment.calculated_dislikes, Comment.date,
+        `SELECT Comment.text, Comment.author_id, Comment.calculated_likes, Comment.calculated_dislikes, Comment.date, Comment.was_modified,
         !ISNULL(Comment_Like.comment_id) as "you_liked", !ISNULL(Comment_Dislike.comment_id) as "you_disliked", User.first_name, User.last_name, User.profile_picture_url 
         FROM Comment
         INNER JOIN User ON Comment.author_id = User.id
@@ -132,7 +132,7 @@ exports.modifyComment = (req, res) => {
 
     // Modify the comment
     databaseConnection.query(
-        "UPDATE Comment SET text=? WHERE id=? AND author_id=?;", [req.body.text, req.params.id, req.verifiedUserId],
+        "UPDATE Comment SET text=?, was_modified=TRUE WHERE id=? AND author_id=?;", [req.body.text, req.params.id, req.verifiedUserId],
         function (err, result) {
             if (err) {
                 console.error(err);

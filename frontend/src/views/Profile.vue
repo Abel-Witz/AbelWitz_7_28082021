@@ -50,7 +50,7 @@
             <!-- Profile picture -->
             <div class="col-4 col-sm-3 col-md-4 col-lg-3 mx-auto" id="profilePictureCol" style="position: relative; display: none;">
               <!-- Profile picture input -->
-              <input disabled ref="imageInput" type="file" class="form-control mb-3 w-100 h-100 opacity-0" name="profilePictureInput" accept=".png,.jpeg,.jpg" aria-describedby="inputGroupFileAddon04" aria-label="Upload" style="z-index: 2; position: absolute;">
+              <input disabled ref="imageInput" type="file" class="form-control mb-3 w-100 h-100 opacity-0" name="profilePictureInput" accept=".png,.jpeg,.jpg" aria-label="Upload" style="z-index: 2; position: absolute;">
               
               <!-- Profile picture display -->
               <div class="d-inline-block rounded-circle border" id="profilePicture" style="width: 100%; padding-top: 100%; background-size: cover;"></div>
@@ -61,13 +61,13 @@
 
             <!-- Profile inputs -->
             <div class="mb-3" id="firstNameInputCol">
-                <label for="emailInput" class="form-label">Prénom</label>
+                <label for="firstNameInput" class="form-label">Prénom</label>
                 <input disabled type="text" class="form-control" id="firstNameInput" name="firstName">
                 <div class="valid-feedback"></div>
                 <div class="invalid-feedback"></div>
             </div>
             <div class="mb-3" id="lastNameInputCol">
-                <label for="emailInput" class="form-label">Nom</label>
+                <label for="lastNameInput" class="form-label">Nom</label>
                 <input disabled type="text" class="form-control" id="lastNameInput" name="lastName">
                 <div class="valid-feedback"></div>
                 <div class="invalid-feedback"></div>

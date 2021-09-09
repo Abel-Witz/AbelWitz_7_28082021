@@ -7,7 +7,7 @@
     <router-link :to="`/post/${post.id}`" class="link-dark w-100">
       <div class="card">
         <div class="card-header">
-          <span v-if="post.author_id && post.author_id != userId">Publié par <router-link :to="'/profil/'+post.author_id">{{post.first_name + " " + post.last_name}}</router-link> {{fromPostCreation}}</span>
+          <span v-if="post.author_id && post.author_id != userId">Publié par <router-link :to="'/profil/'+post.author_id" class="profileLink">{{post.first_name + " " + post.last_name}}</router-link> {{fromPostCreation}}</span>
           <span v-if="!post.author_id">Publié par un utilisateur supprimé {{fromPostCreation}}</span>
           <span v-if="post.author_id && post.author_id == userId">Publié par vous {{fromPostCreation}}</span>
         </div>
@@ -17,7 +17,7 @@
 
           <div v-if="post.text" class="card-text mt-1">
             <!-- For each text line in this.postLines() create a new p element in order to display backlines -->
-            <p v-for="line in postLines" :key="line" class="my-0">{{line}}</p>
+            <p v-for="line in postLines" :key="line.id" class="my-0">{{line.content}}</p>
           </div>
         </div>
       </div>
@@ -59,9 +59,14 @@ export default {
     // Split the post text in multiple lines according to the line breaks found: \n
     postLines() {
       if (this.post.text) {
-        const lines = this.post.text.split('\n');
+        const lineArray = this.post.text.split('\n');
+        const lineObjectArray = [];
 
-        return lines;
+        for (let i = 0; i < lineArray.length; i++) {
+          lineObjectArray[i] = {id: i, content: lineArray[i]};
+        }
+
+        return lineObjectArray;
       }
 
       return [];
@@ -151,5 +156,15 @@ export default {
   p:empty::before {
     content:"";
     display:inline-block;
+  }
+</style>
+
+<style lang="scss" scoped>
+  .profileLink {
+    color: #0c2aff;
+
+    &:hover {
+      color: darken(#0c2aff, 20);
+    }
   }
 </style>

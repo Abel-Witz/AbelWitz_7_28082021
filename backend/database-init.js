@@ -38,6 +38,7 @@ databaseConnection.query(
         date DATETIME NOT NULL,
         calculated_likes INT UNSIGNED NOT NULL DEFAULT 0,
         calculated_dislikes INT UNSIGNED NOT NULL DEFAULT 0,
+        was_modified BOOLEAN DEFAULT FALSE,
         PRIMARY KEY (id),
         CONSTRAINT fk_author_id
             FOREIGN KEY (author_id)
@@ -88,6 +89,7 @@ databaseConnection.query(
         \`date\` DATETIME NOT NULL,
         calculated_likes INT UNSIGNED NOT NULL DEFAULT 0,
         calculated_dislikes INT UNSIGNED NOT NULL DEFAULT 0,
+        was_modified BOOLEAN DEFAULT FALSE,
         PRIMARY KEY (id),
         CONSTRAINT fk_comment_post_id
             FOREIGN KEY (post_id)

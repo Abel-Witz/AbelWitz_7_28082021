@@ -1,10 +1,10 @@
 <template>
   <div class="card text-dark">
     <div class="card-body">
-        <h5 class="card-title mb-3">Commenter</h5>
+        <h4 class="card-title mb-3">Commenter</h4>
         <div class="row mt-2">
           <div class="col-12">
-            <AutoResizeTextArea id="textInput" class="form-control mb-2" placeholder="Qu'en pensez-vous ?" :minRows="5" :maxRows="10" :resizeOnFocusEvent="true" />
+            <AutoResizeTextArea ref="textInput" class="form-control mb-2" placeholder="Qu'en pensez-vous ?" :minRows="5" :maxRows="10" :resizeOnFocusEvent="true"/>
             <div class="valid-feedback"></div>
             <div class="invalid-feedback"></div>
 
@@ -31,7 +31,8 @@ export default {
   },
   mounted () {
     const component = this;
-    const textInput = document.getElementById("textInput");
+    const textInput = this.$refs.textInput.$refs.textArea;
+    const textInputComponent = this.$refs.textInput;
     const postCommentButton = document.getElementById("postCommentButton");
 
 
@@ -75,7 +76,7 @@ export default {
 
               // Reset textInput
               textInput.value = "";
-              textInput.style.height = parseInt(getComputedStyle(textInput).lineHeight) + "px";
+              textInputComponent.fixHeight();
             }
 
             postCommentButton.disabled = false; // We re-enable the post button if everything went ok

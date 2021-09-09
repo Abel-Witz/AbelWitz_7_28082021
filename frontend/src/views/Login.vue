@@ -129,7 +129,6 @@ export default {
           const json = await response.json();
 
           if (response.status === 200) {
-            console.log(json.isAdmin === 1)
 
             // We store the userId, token and isAdmin values for later use
             localStorage.setItem('userId', json.userId);

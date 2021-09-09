@@ -45,7 +45,7 @@
     app.use((req, res, next) => {
         res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_ADDRESS);
         res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
-        res.setHeader("Access-Control-Allow-Methods", "PUT, DELETE")
+        res.setHeader("Access-Control-Allow-Methods", "PATCH, PUT, DELETE")
         next();
     })
 
